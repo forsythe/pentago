@@ -10,8 +10,13 @@ public class PentagoAI {
 		//b.board[1] = 0b010010000000000000000000000000010010L;
 		//b.print(WHITE);
 		//b.print(BLACK);
+		b.board[0] = 0L;
+		b.board[1] = 0L;
 		b.print();
-				
+		b.setCell(WHITE, 1);
+		b.print();
+		b.setCell(BLACK,  24);
+		b.print();
 
 	}
 

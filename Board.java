@@ -49,12 +49,12 @@ public class Board {
 		System.out.println();
 	}
 
-	private void setCell(Board b, int color, int pos) {
-		b.board[color] |= (1L << pos);
+	public void setCell(int color, int pos) {
+		this.board[color] |= (1L << pos);
 		System.out.println("Adding marble to " + (color == 0 ? "white" : "black") + "'s position " + pos);
 	}
 
-	private long getCell(int color, int pos) {
+	public long getCell(int color, int pos) {
 		return (this.board[color] & (1L << pos)) >> pos;
 
 	}
