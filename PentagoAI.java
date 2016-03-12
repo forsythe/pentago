@@ -38,6 +38,8 @@ public class PentagoAI {
 
 						return bestMove;
 					}
+				} else{
+					break;
 				}
 			}
 
@@ -66,6 +68,8 @@ public class PentagoAI {
 
 						return bestMove;
 					}
+				} else{
+					break;
 				}
 			}
 			return bestMove;
