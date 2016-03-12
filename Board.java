@@ -69,7 +69,7 @@ public class Board {
 
 	// Sets the cell value to something of our choice
 	private void setCell(int color, int pos, long value) {
-		System.out.println("Setting playerboard " + color + "'s bit position: " + pos + " to the value " + value);
+		//System.out.println("Setting playerboard " + color + "'s bit position: " + pos + " to the value " + value);
 		board[color] ^= (-value ^ board[color]) & (1L << pos); // Relies on twos complement for long OTHERWISE GG
 	}
 
@@ -106,8 +106,32 @@ public class Board {
 				}
 				break;
 			case 3:
+				for (int k = WHITE; k <= BLACK; k++) {
+					temp = getCell(k, 9);
+					setCell(k, 9, getCell(k, 16));
+					setCell(k, 16, getCell(k, 11));
+					setCell(k, 11, getCell(k, 4));
+					setCell(k, 4, temp);
+					temp = getCell(k, 3);
+					setCell(k, 3, getCell(k, 15));
+					setCell(k, 15, getCell(k, 17));
+					setCell(k, 17, getCell(k, 5));
+					setCell(k, 5, temp);
+				}
 				break;
 			case 4:
+				for (int k = WHITE; k <= BLACK; k++) {
+					temp = getCell(k, 6);
+					setCell(k, 6, getCell(k, 13));
+					setCell(k, 13, getCell(k, 8));
+					setCell(k, 8, getCell(k, 1));
+					setCell(k, 1, temp);
+					temp = getCell(k, 0);
+					setCell(k, 0, getCell(k, 12));
+					setCell(k, 12, getCell(k, 14));
+					setCell(k, 14, getCell(k, 2));
+					setCell(k, 2, temp);
+				}
 				break;
 
 			}
