@@ -3,7 +3,9 @@ package pentago;
 public class Board {
 	private static final int WHITE = 0, BLACK = 1;
 
-	long[] board = new long[2]; // 0 for white, 1 for black
+	public long[] board = new long[2]; // 0 for white, 1 for black
+	public int movePos = -1, quadrant = -1;
+	public boolean moveClockwise = false;
 
 	public Board(long whiteBoard, long blackBoard) {
 		board[0] = whiteBoard;
@@ -23,7 +25,7 @@ public class Board {
 	 */
 
 	public void print(int color) {
-		System.out.println((color == 0 ? "white" : "black"));
+		//System.out.println((color == 0 ? "white" : "black"));
 
 		String temp = getBinaryStringFromLong(this.board[color]);
 		assert temp.length() == 36;
@@ -76,7 +78,7 @@ public class Board {
 	// Sets the cell value to 1 for board[color]
 	public void occupyCell(int color, int pos) {
 		board[color] |= (1L << pos);
-		System.out.println("Adding marble to " + (color == 0 ? "white" : "black") + "'s position " + pos);
+		//System.out.println("Adding marble to " + (color == 0 ? "white" : "black") + "'s position " + pos);
 	}
 
 	// Check if the specified cell is taken with marble
@@ -477,6 +479,7 @@ public class Board {
 		whiteScore += WEIGHT_CENTER * (getCell(WHITE, 25) + getCell(WHITE, 28) + getCell(WHITE, 10) + getCell(WHITE, 7));
 		whiteScore -= WEIGHT_CENTER * (getCell(BLACK, 25) + getCell(BLACK, 28) + getCell(BLACK, 10) + getCell(BLACK, 7));
 
+		//System.out.println(whiteScore);
 		return whiteScore;
 	}
 
@@ -493,6 +496,9 @@ public class Board {
 					temp.setCell(player, k, 1);
 					//System.out.println("Set: " + k + " to " + (player==0? "white" : "black"));
 					temp.rotateQuadrant(quadrant, true);
+					temp.movePos = k;
+					temp.quadrant = quadrant;
+					temp.moveClockwise = true;
 					children[arrayPos] = temp;
 					//temp.print();
 					arrayPos++;
@@ -502,6 +508,9 @@ public class Board {
 					temp.setCell(player, k, 1);
 					//System.out.println("Set: " + k + " to " + (player==0? "white" : "black"));
 					temp.rotateQuadrant(quadrant, false);
+					temp.movePos = k;
+					temp.quadrant = quadrant;
+					temp.moveClockwise = false;
 					children[arrayPos] = temp;
 					//temp.print();
 					arrayPos++;
