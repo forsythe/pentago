@@ -53,8 +53,8 @@ public class Board {
 				temp += "B";
 			}
 		}
-		System.out.println("white: " + getBinaryStringFromLong(board[WHITE]));
-		System.out.println("black: " + getBinaryStringFromLong(board[BLACK]));
+		//System.out.println("white: " + getBinaryStringFromLong(board[WHITE]));
+		//System.out.println("black: " + getBinaryStringFromLong(board[BLACK]));
 		for (int k = 0; k < 36; k++) {
 			System.out.print(temp.charAt(k));
 			if ((k + 1) % 3 == 0)
@@ -91,6 +91,7 @@ public class Board {
 	}
 
 	public void rotateQuadrant(int quadrant, boolean clockwise) {
+		//System.out.println("Rotated quadrant " + quadrant + (clockwise? " clockwise":" counterclockwise"));
 		long temp;
 		if (clockwise) {
 			switch (quadrant) {
@@ -485,20 +486,24 @@ public class Board {
 
 		for (int k = 0; k < 36; k++) {
 			if (getCell(WHITE, k) == getCell(BLACK, k)) { // only equal when 0==0 (aka empty spot)
-				assert getCell(WHITE, k) == 0;
+				//assert getCell(WHITE, k) == 0;
 				for (int quadrant = 1; quadrant <= 4; quadrant++) {
 					// rotate clockwise
 					Board temp = new Board(this.board[WHITE], this.board[BLACK]);
 					temp.setCell(player, k, 1);
+					//System.out.println("Set: " + k + " to " + (player==0? "white" : "black"));
 					temp.rotateQuadrant(quadrant, true);
 					children[arrayPos] = temp;
+					//temp.print();
 					arrayPos++;
 					
 					// rotate counterclockwise
 					temp = new Board(this.board[WHITE], this.board[BLACK]);
 					temp.setCell(player, k, 1);
+					//System.out.println("Set: " + k + " to " + (player==0? "white" : "black"));
 					temp.rotateQuadrant(quadrant, false);
 					children[arrayPos] = temp;
+					//temp.print();
 					arrayPos++;
 				}
 			}
