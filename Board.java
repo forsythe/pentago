@@ -4,7 +4,12 @@ public class Board {
 	private static final int WHITE = 0, BLACK = 1;
 
 	long[] board = new long[2]; // 0 for white, 1 for black
-
+	
+	public Board(long whiteBoard, long blackBoard){
+		board[0] = whiteBoard;
+		board[1] = blackBoard;
+	}
+	
 	/*
 	 * Board representation: [35, 34, 33, .... 2, 1, 0]
 	 * 
@@ -328,7 +333,7 @@ public class Board {
 	};
 
 	static long[] masks_3_consec = {
-			//Horizontal masks			
+			// Horizontal masks
 			0b111000_000000_000000_000000_000000_000000L,
 			0b011100_000000_000000_000000_000000_000000L,
 			0b001110_000000_000000_000000_000000_000000L,
@@ -353,39 +358,39 @@ public class Board {
 			0b011100L,
 			0b001110L,
 			0b000111L,
-			
-			//Vertical masks
+
+			// Vertical masks
 			0b100000_100000_100000_000000_000000_000000L,
 			0b100000_100000_100000_000000_000000L,
 			0b100000_100000_100000_000000L,
 			0b100000_100000_100000L,
-			
+
 			0b010000_010000_010000_000000_000000_000000L,
 			0b010000_010000_010000_000000_000000L,
 			0b010000_010000_010000_000000L,
 			0b010000_010000_010000L,
-			
+
 			0b001000_001000_001000_000000_000000_000000L,
 			0b001000_001000_001000_000000_000000L,
 			0b001000_001000_001000_000000L,
 			0b001000_001000_001000L,
-			
+
 			0b000100_000100_000100_000000_000000_000000L,
 			0b000100_000100_000100_000000_000000L,
 			0b000100_000100_000100_000000L,
 			0b000100_000100_000100L,
-			
+
 			0b000010_000010_000010_000000_000000_000000L,
 			0b000010_000010_000010_000000_000000L,
 			0b000010_000010_000010_000000L,
 			0b000010_000010_000010L,
-			
+
 			0b000001_000001_000001_000000_000000_000000L,
 			0b000001_000001_000001_000000_000000L,
 			0b000001_000001_000001_000000L,
 			0b000001_000001_000001L,
-			
-			//Forward slash masks "/"
+
+			// Forward slash masks "/"
 			0b001000_010000_100000_000000_000000_000000L,
 			0b001000_010000_100000_000000_000000L,
 			0b001000_010000_100000_000000L,
@@ -395,7 +400,7 @@ public class Board {
 			0b000100_001000_010000_000000_000000L,
 			0b000100_001000_010000_000000L,
 			0b000100_001000_010000L,
-			
+
 			0b000010_000100_001000_000000_000000_000000L,
 			0b000010_000100_001000_000000_000000L,
 			0b000010_000100_001000_000000L,
@@ -406,28 +411,28 @@ public class Board {
 			0b000001_000010_000100_000000L,
 			0b000001_000010_000100L,
 
-			//Backslash masks "\"
+			// Backslash masks "\"
 			0b100000_010000_001000_000000_000000_000000L,
 			0b100000_010000_001000_000000_000000,
 			0b100000_010000_001000_000000L,
 			0b100000_010000_001000L,
-			
+
 			0b010000_001000_000100_000000_000000_000000L,
 			0b010000_001000_000100_000000_000000L,
 			0b010000_001000_000100_000000L,
 			0b010000_001000_000100L,
-			
+
 			0b001000_000100_000010_000000_000000_000000L,
 			0b001000_000100_000010_000000_000000L,
 			0b001000_000100_000010_000000L,
 			0b001000_000100_000010L,
-			
+
 			0b000100_000010_000001_000000_000000_000000L,
 			0b000100_000010_000001_000000_000000L,
 			0b000100_000010_000001_000000L,
 			0b000100_000010_000001L
 	};
-	
+
 	public boolean isTerminalBoard() {
 		if ((board[WHITE] | board[BLACK]) == 0b111111111111111111111111111111111111L)
 			return true;
@@ -437,5 +442,63 @@ public class Board {
 				return true;
 
 		return false;
+	}
+
+	private final int WEIGHT_5_CONSEC = 100_000;
+	private final int WEIGHT_4_CONSEC = 1000;
+	private final int WEIGHT_3_CONSEC = 100;
+	private final int WEIGHT_CENTER = 5;
+
+	public int getHeuristicValue() {
+		int whiteScore = 0;
+		for (long mask : masks_5_consec) {
+			if ((mask & board[WHITE]) == mask)
+				whiteScore += WEIGHT_5_CONSEC;
+
+			if ((mask & board[BLACK]) == mask)
+				whiteScore -= WEIGHT_5_CONSEC;
+		}
+
+		for (long mask : masks_4_consec) {
+			if ((mask & board[WHITE]) == mask)
+				whiteScore += WEIGHT_4_CONSEC;
+			if ((mask & board[BLACK]) == mask)
+				whiteScore -= WEIGHT_4_CONSEC;
+		}
+
+		for (long mask : masks_3_consec) {
+			if ((mask & board[WHITE]) == mask)
+				whiteScore += WEIGHT_3_CONSEC;
+			if ((mask & board[BLACK]) == mask)
+				whiteScore -= WEIGHT_3_CONSEC;
+		}
+
+		whiteScore += WEIGHT_CENTER * (getCell(WHITE, 25) + getCell(WHITE, 28) + getCell(WHITE, 10) + getCell(WHITE, 7));
+		whiteScore -= WEIGHT_CENTER * (getCell(BLACK, 25) + getCell(BLACK, 28) + getCell(BLACK, 10) + getCell(BLACK, 7));
+
+		return whiteScore;
+	}
+
+	public Board[] getChildren(int player) { //0 or 1
+		Board[] children = new Board[288];
+		int arrayPos = 0;
+			for (int k = 0; k < 36; k++) {
+				if (getCell(WHITE, k) == getCell(BLACK, k)) { // only equal when 0==0 (aka empty spot)
+					assert getCell(WHITE, k) == 0;
+					Board temp = new Board();
+					temp.board[WHITE] = this.board[WHITE];
+					temp.board[BLACK] = this.board[BLACK];
+					temp.setCell(player,  k,  1);
+					
+					children[arrayPos].board[WHITE] = this.board[WHITE];
+					children[arrayPos].board[BLACK] = this.board[BLACK];
+					children[arrayPos].setCell(WHITE, k, 1L);
+					arrayPos++;
+					
+				}
+			}
+
+		
+		return children;
 	}
 }
