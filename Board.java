@@ -4,12 +4,12 @@ public class Board {
 	private static final int WHITE = 0, BLACK = 1;
 
 	long[] board = new long[2]; // 0 for white, 1 for black
-	
-	public Board(long whiteBoard, long blackBoard){
+
+	public Board(long whiteBoard, long blackBoard) {
 		board[0] = whiteBoard;
 		board[1] = blackBoard;
 	}
-	
+
 	/*
 	 * Board representation: [35, 34, 33, .... 2, 1, 0]
 	 * 
@@ -449,7 +449,7 @@ public class Board {
 	private final int WEIGHT_3_CONSEC = 100;
 	private final int WEIGHT_CENTER = 5;
 
-	public int getHeuristicValue() {
+	public int getHeuristicValue() { // always in perspective of white player
 		int whiteScore = 0;
 		for (long mask : masks_5_consec) {
 			if ((mask & board[WHITE]) == mask)
@@ -479,26 +479,31 @@ public class Board {
 		return whiteScore;
 	}
 
-	public Board[] getChildren(int player) { //0 or 1
-		Board[] children = new Board[288];
+	public Board[] getChildren(int player) { // if player = 0, get's the moves that 0 can put
+		Board[] children = new Board[288]; // TODO: check that last few are nonnull when accessing children
 		int arrayPos = 0;
-			for (int k = 0; k < 36; k++) {
-				if (getCell(WHITE, k) == getCell(BLACK, k)) { // only equal when 0==0 (aka empty spot)
-					assert getCell(WHITE, k) == 0;
-					Board temp = new Board();
-					temp.board[WHITE] = this.board[WHITE];
-					temp.board[BLACK] = this.board[BLACK];
-					temp.setCell(player,  k,  1);
-					
-					children[arrayPos].board[WHITE] = this.board[WHITE];
-					children[arrayPos].board[BLACK] = this.board[BLACK];
-					children[arrayPos].setCell(WHITE, k, 1L);
+
+		for (int k = 0; k < 36; k++) {
+			if (getCell(WHITE, k) == getCell(BLACK, k)) { // only equal when 0==0 (aka empty spot)
+				assert getCell(WHITE, k) == 0;
+				for (int quadrant = 1; quadrant <= 4; quadrant++) {
+					// rotate clockwise
+					Board temp = new Board(this.board[WHITE], this.board[BLACK]);
+					temp.setCell(player, k, 1);
+					temp.rotateQuadrant(quadrant, true);
+					children[arrayPos] = temp;
 					arrayPos++;
 					
+					// rotate counterclockwise
+					temp = new Board(this.board[WHITE], this.board[BLACK]);
+					temp.setCell(player, k, 1);
+					temp.rotateQuadrant(quadrant, false);
+					children[arrayPos] = temp;
+					arrayPos++;
 				}
 			}
+		}
 
-		
 		return children;
 	}
 }
