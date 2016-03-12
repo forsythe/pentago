@@ -6,17 +6,21 @@ public class PentagoAI {
 
 	public static void main(String[] args) {
 		Board b = new Board();
-		//b.board[0] = 0b100001000000000000000000000000100001L;
-		//b.board[1] = 0b010010000000000000000000000000010010L;
-		//b.print(WHITE);
-		//b.print(BLACK);
+		// b.board[0] = 0b100001000000000000000000000000100001L;
+		// b.board[1] = 0b010010000000000000000000000000010010L;
+		// b.print(WHITE);
+		// b.print(BLACK);
 		b.board[0] = 0L;
 		b.board[1] = 0L;
+		b.occupyCell(WHITE, 32);
+		b.occupyCell(BLACK, 24);
+		b.occupyCell(WHITE, 20);
 		b.print();
-		b.setCell(WHITE, 1);
+
+		b.rotateQuadrant(1, true);
+
 		b.print();
-		b.setCell(BLACK,  24);
-		b.print();
+		//System.out.println(b.isTerminalBoard());
 
 	}
 
