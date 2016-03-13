@@ -9,6 +9,11 @@ public class Board {
 	public int movePos = -1, quadrant = -1;
 	public boolean moveClockwise = false;
 
+	public Board() {
+		board[0] = 0b0L;
+		board[1] = 0b0L;
+	}
+
 	public Board(long maxBoard, long minBoard) { // For custom games
 		board[0] = maxBoard;
 		board[1] = minBoard;
@@ -45,27 +50,23 @@ public class Board {
 
 	public void print() {
 
-		String temp = "";
-
 		for (int k = 35; k >= 0; k--) {
 			if (getCell(P_MAX, k) == getCell(P_MIN, k))
-				temp += " ";
+				System.out.print("  ");
 			else if (getCell(P_MAX, k) == 1)
-				temp += "W";
+				System.out.print("W ");
 			else
-				temp += "B";
-		}
+				System.out.print("B ");
 
-		for (int k = 0; k < 36; k++) {
-			System.out.print(temp.charAt(k));
-			if ((k + 1) % 3 == 0)
-				System.out.print("|");
-			if ((k + 1) % 6 == 0)
+			if ((k) % 3 == 0)
+				System.out.print("| ");
+			if ((k) % 6 == 0)
 				System.out.println();
-			if (k == 17)
-				System.out.println("---+----");
+			if (k == 18)
+				System.out.println("------+-------|");
 		}
 		System.out.println();
+
 	}
 
 	private static String getBinaryStringFromLong(Long b) {

@@ -3,7 +3,7 @@ package pentago;
 public class GameManager {
 	final String[] NAMES = { "human", "computer" };
 	final int MAX_PLAYER = 0, MIN_PLAYER = 1;
-	final int ply = 3;
+	final int ply = 5;
 
 	public static void main(String[] args) {
 		GameManager game = new GameManager();
@@ -11,7 +11,7 @@ public class GameManager {
 	}
 
 	public void play(int p1, int p2) {// (0, 1) is human v computer, (1, 1) computer v computer
-		Board b = new Board(0b0L, 0b0L);
+		Board b = new Board();
 
 		PentagoAI AIbrain = new PentagoAI(ply);
 
