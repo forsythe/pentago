@@ -3,7 +3,7 @@ package pentago;
 public class GameManager {
 	final String[] NAMES = { "human", "computer" };
 	final int MAX_PLAYER = 0, MIN_PLAYER = 1;
-	final int ply = 3;
+	final int ply = 4;
 
 	public static void main(String[] args) {
 		GameManager game = new GameManager();
@@ -14,8 +14,7 @@ public class GameManager {
 		Board b = new Board(0b0L, 0b0L);
 
 		PentagoAI AIbrain = new PentagoAI(ply);
-		PentagoAI AIbrainADVANCED = new PentagoAI(ply+1);
-		
+
 		System.out.println(NAMES[p1] + " v. " + NAMES[p2]);
 
 		if (p1 == 0 && p2 == 1) { // human white v computer black
@@ -54,14 +53,14 @@ public class GameManager {
 					break;
 			}
 		} else { // computer white v computer black
-			for (int k = 0; k < 18; k++) {
+			for (int k = 0; k <= 18; k++) {
 
 				doAIMove(b, AIbrain, true);
 
 				if (hasWinnerOrTie(b))
 					break;
 
-				doAIMove(b, AIbrainADVANCED, false);
+				doAIMove(b, AIbrain, false);
 
 				if (hasWinnerOrTie(b))
 					break;
@@ -74,7 +73,8 @@ public class GameManager {
 		ScoreObject n = robot.alphaBeta(b, isMaxPlayer); // +-1 because -maxValue is invalid
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime) / 1000000; // divide by 1000000 to get milliseconds.
-		System.out.println("Computer sets pos " + n.board.movePos + " and rotates quadrant " + n.board.quadrant + (n.board.moveClockwise ? " clockwise" : " anticlockwise"));
+		System.out.println("Computer (" + (isMaxPlayer ? "white"
+				: "black") + ") set pos " + n.board.movePos + " and rotates quadrant " + n.board.quadrant + (n.board.moveClockwise ? " clockwise" : " anticlockwise"));
 		b.occupyCell(isMaxPlayer ? MAX_PLAYER : MIN_PLAYER, n.board.movePos);
 		b.rotateQuadrant(n.board.quadrant, n.board.moveClockwise);
 		b.print();
@@ -85,7 +85,8 @@ public class GameManager {
 		String pos = javax.swing.JOptionPane.showInputDialog("Please enter move position");
 		String quad = javax.swing.JOptionPane.showInputDialog("Please choose quadrant");
 		String clockwise = javax.swing.JOptionPane.showInputDialog("1 for clockwise, 0 for anticlockwise");
-		System.out.println("You set pos " + pos + " and rotated quadrant " + quad + (Integer.parseInt(clockwise) == 1 ? " clockwise" : " anticlockwise"));
+		System.out.println(
+				"You (" + (player == MAX_PLAYER ? "white" : "black") + ") set pos " + pos + " and rotated quadrant " + quad + (Integer.parseInt(clockwise) == 1 ? " clockwise" : " anticlockwise"));
 
 		b.occupyCell(player, Integer.parseInt(pos));
 		b.rotateQuadrant(Integer.parseInt(quad), Integer.parseInt(clockwise) == 1);
