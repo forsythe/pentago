@@ -542,9 +542,7 @@ public class Board {
 
 	@Override
 	public int hashCode() {
-		long f = board[P_MAX] << 36 + board[P_MIN];
-		return 37 * 3 + (int) (f ^ (f >>> 32));
-		// https://stackoverflow.com/questions/113511/best-implementation-for-hashcode-method
+		return Long.hashCode(board[P_MAX] << 36 + board[P_MIN]);
 	}
 
 	public boolean equals(Object obj) {
