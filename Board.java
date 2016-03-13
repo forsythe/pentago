@@ -1,15 +1,18 @@
 package pentago;
 
-public class Board {
-	private static final int WHITE = 0, BLACK = 1;
+import java.util.ArrayList;
+import java.util.HashSet;
 
-	public long[] board = new long[2]; // 0 for white, 1 for black
+public class Board {
+	private static final int P_MAX = 0, P_MIN = 1;
+
+	public long[] board = new long[2]; // 0 for P_MAX, 1 for P_MIN
 	public int movePos = -1, quadrant = -1;
 	public boolean moveClockwise = false;
 
-	public Board(long whiteBoard, long blackBoard) {
-		board[0] = whiteBoard;
-		board[1] = blackBoard;
+	public Board(long maxBoard, long minBoard) {
+		board[0] = maxBoard;
+		board[1] = minBoard;
 	}
 
 	/*
@@ -24,10 +27,10 @@ public class Board {
 	 * 5 | 4 | 3 ||| 2 | 1 | 0
 	 */
 
-	public void print(int color) {
-		//System.out.println((color == 0 ? "white" : "black"));
+	public void print(int player) {
+		// System.out.println((player == 0 ? "P_MAX" : "P_MIN"));
 
-		String temp = getBinaryStringFromLong(this.board[color]);
+		String temp = getBinaryStringFromLong(this.board[player]);
 		assert temp.length() == 36;
 
 		System.out.println(temp);
@@ -47,16 +50,16 @@ public class Board {
 
 		String temp = "";
 		for (int k = 35; k >= 0; k--) {
-			if (getCell(WHITE, k) == getCell(BLACK, k)) {
-				temp += "O";
-			} else if (getCell(WHITE, k) == 1) {
+			if (getCell(P_MAX, k) == getCell(P_MIN, k)) {
+				temp += " ";
+			} else if (getCell(P_MAX, k) == 1) {
 				temp += "W";
 			} else {
 				temp += "B";
 			}
 		}
-		//System.out.println("white: " + getBinaryStringFromLong(board[WHITE]));
-		//System.out.println("black: " + getBinaryStringFromLong(board[BLACK]));
+		// System.out.println("P_MAX: " + getBinaryStringFromLong(board[P_MAX]));
+		// System.out.println("P_MIN: " + getBinaryStringFromLong(board[P_MIN]));
 		for (int k = 0; k < 36; k++) {
 			System.out.print(temp.charAt(k));
 			if ((k + 1) % 3 == 0)
@@ -75,30 +78,30 @@ public class Board {
 		// beware, leading 0s lost when Long-->str, so pad them back
 	}
 
-	// Sets the cell value to 1 for board[color]
-	public void occupyCell(int color, int pos) {
-		board[color] |= (1L << pos);
-		//System.out.println("Adding marble to " + (color == 0 ? "white" : "black") + "'s position " + pos);
+	// Sets the cell value to 1 for board[player]
+	public void occupyCell(int player, int pos) {
+		board[player] |= (1L << pos);
+		// System.out.println("Adding marble to " + (player == 0 ? "P_MAX" : "P_MIN") + "'s position " + pos);
 	}
 
 	// Check if the specified cell is taken with marble
-	public long getCell(int color, int pos) {
-		return (board[color] & (1L << pos)) >> pos;
+	public long getCell(int player, int pos) {
+		return (board[player] & (1L << pos)) >> pos;
 	}
 
 	// Sets the cell value to something of our choice
-	private void setCell(int color, int pos, long value) {
-		// System.out.println("Setting playerboard " + color + "'s bit position: " + pos + " to the value " + value);
-		board[color] ^= (-value ^ board[color]) & (1L << pos); // Relies on twos complement for long OTHERWISE GG
+	private void setCell(int player, int pos, long value) {
+		// System.out.println("Setting playerboard " + player + "'s bit position: " + pos + " to the value " + value);
+		board[player] ^= (-value ^ board[player]) & (1L << pos); // Relies on twos complement for long OTHERWISE GG
 	}
 
 	public void rotateQuadrant(int quadrant, boolean clockwise) {
-		//System.out.println("Rotated quadrant " + quadrant + (clockwise? " clockwise":" counterclockwise"));
+		// System.out.println("Rotated quadrant " + quadrant + (clockwise? " clockwise":" counterclockwise"));
 		long temp;
 		if (clockwise) {
 			switch (quadrant) {
 			case 1:
-				for (int k = WHITE; k <= BLACK; k++) {
+				for (int k = P_MAX; k <= P_MIN; k++) {
 					temp = getCell(k, 24);
 					setCell(k, 24, getCell(k, 31));
 					setCell(k, 31, getCell(k, 26));
@@ -112,7 +115,7 @@ public class Board {
 				}
 				break;
 			case 2:
-				for (int k = WHITE; k <= BLACK; k++) {
+				for (int k = P_MAX; k <= P_MIN; k++) {
 					temp = getCell(k, 27);
 					setCell(k, 27, getCell(k, 34));
 					setCell(k, 34, getCell(k, 29));
@@ -126,7 +129,7 @@ public class Board {
 				}
 				break;
 			case 3:
-				for (int k = WHITE; k <= BLACK; k++) {
+				for (int k = P_MAX; k <= P_MIN; k++) {
 					temp = getCell(k, 9);
 					setCell(k, 9, getCell(k, 16));
 					setCell(k, 16, getCell(k, 11));
@@ -140,7 +143,7 @@ public class Board {
 				}
 				break;
 			case 4:
-				for (int k = WHITE; k <= BLACK; k++) {
+				for (int k = P_MAX; k <= P_MIN; k++) {
 					temp = getCell(k, 6);
 					setCell(k, 6, getCell(k, 13));
 					setCell(k, 13, getCell(k, 8));
@@ -158,7 +161,7 @@ public class Board {
 		} else {
 			switch (quadrant) {
 			case 1:
-				for (int k = WHITE; k <= BLACK; k++) {
+				for (int k = P_MAX; k <= P_MIN; k++) {
 					temp = getCell(k, 24);
 					setCell(k, 24, getCell(k, 19));
 					setCell(k, 19, getCell(k, 26));
@@ -172,7 +175,7 @@ public class Board {
 				}
 				break;
 			case 2:
-				for (int k = WHITE; k <= BLACK; k++) {
+				for (int k = P_MAX; k <= P_MIN; k++) {
 					temp = getCell(k, 27);
 					setCell(k, 27, getCell(k, 22));
 					setCell(k, 22, getCell(k, 29));
@@ -186,7 +189,7 @@ public class Board {
 				}
 				break;
 			case 3:
-				for (int k = WHITE; k <= BLACK; k++) {
+				for (int k = P_MAX; k <= P_MIN; k++) {
 					temp = getCell(k, 9);
 					setCell(k, 9, getCell(k, 4));
 					setCell(k, 4, getCell(k, 11));
@@ -200,7 +203,7 @@ public class Board {
 				}
 				break;
 			case 4:
-				for (int k = WHITE; k <= BLACK; k++) {
+				for (int k = P_MAX; k <= P_MIN; k++) {
 					temp = getCell(k, 6);
 					setCell(k, 6, getCell(k, 1));
 					setCell(k, 1, getCell(k, 8));
@@ -437,14 +440,42 @@ public class Board {
 	};
 
 	public boolean isTerminalBoard() {
-		if ((board[WHITE] | board[BLACK]) == 0b111111111111111111111111111111111111L)
+		if ((board[P_MAX] | board[P_MIN]) == 0b111111111111111111111111111111111111L)
 			return true;
 
-		for (long mask : masks_5_consec)
-			if ((mask & board[WHITE]) == mask || (mask & board[BLACK]) == mask)
+		for (int k = 0; k < masks_5_consec.length; k++)
+			if ((masks_5_consec[k] & board[P_MAX]) == masks_5_consec[k] ||
+					(masks_5_consec[k] & board[P_MIN]) == masks_5_consec[k])
 				return true;
 
 		return false;
+	}
+
+	public int hasWinner() { // -1 no winner, 0 P_MAX, 1 P_MIN, 2 tie
+
+		boolean P_MAXWin = false, P_MINWin = false;
+
+		for (long mask : masks_5_consec) {
+			if ((mask & board[P_MAX]) == mask) {
+				P_MAXWin = true;
+				break;
+			}
+		}
+
+		for (long mask : masks_5_consec) {
+			if ((mask & board[P_MIN]) == mask) {
+				P_MINWin = true;
+				break;
+			}
+		}
+
+		if (P_MAXWin && P_MINWin)
+			return 2;
+		else if (P_MAXWin != P_MINWin)
+			return P_MAXWin ? 0 : 1;
+		else
+			return -1;
+
 	}
 
 	private final int WEIGHT_5_CONSEC = 100_000;
@@ -452,72 +483,113 @@ public class Board {
 	private final int WEIGHT_3_CONSEC = 100;
 	private final int WEIGHT_CENTER = 5;
 
-	public int getHeuristicValue() { // always in perspective of white player
-		int whiteScore = 0;
-		for (long mask : masks_5_consec) {
-			if ((mask & board[WHITE]) == mask)
-				whiteScore += WEIGHT_5_CONSEC;
+	public int getHeuristicValue() { // always in perspective of P_MAX player
+		int P_MAXScore = 0;
 
-			if ((mask & board[BLACK]) == mask)
-				whiteScore -= WEIGHT_5_CONSEC;
+		for (long mask : masks_5_consec) {
+			if ((mask & board[P_MAX]) == mask)
+				P_MAXScore += WEIGHT_5_CONSEC;
+
+			if ((mask & board[P_MIN]) == mask)
+				P_MAXScore -= WEIGHT_5_CONSEC;
 		}
 
 		for (long mask : masks_4_consec) {
-			if ((mask & board[WHITE]) == mask)
-				whiteScore += WEIGHT_4_CONSEC;
-			if ((mask & board[BLACK]) == mask)
-				whiteScore -= WEIGHT_4_CONSEC;
+			if ((mask & board[P_MAX]) == mask)
+				P_MAXScore += WEIGHT_4_CONSEC;
+			if ((mask & board[P_MIN]) == mask)
+				P_MAXScore -= WEIGHT_4_CONSEC;
 		}
 
 		for (long mask : masks_3_consec) {
-			if ((mask & board[WHITE]) == mask)
-				whiteScore += WEIGHT_3_CONSEC;
-			if ((mask & board[BLACK]) == mask)
-				whiteScore -= WEIGHT_3_CONSEC;
+			if ((mask & board[P_MAX]) == mask)
+				P_MAXScore += WEIGHT_3_CONSEC;
+			if ((mask & board[P_MIN]) == mask)
+				P_MAXScore -= WEIGHT_3_CONSEC;
 		}
 
-		whiteScore += WEIGHT_CENTER * (getCell(WHITE, 25) + getCell(WHITE, 28) + getCell(WHITE, 10) + getCell(WHITE, 7));
-		whiteScore -= WEIGHT_CENTER * (getCell(BLACK, 25) + getCell(BLACK, 28) + getCell(BLACK, 10) + getCell(BLACK, 7));
+		/*
+		 * for (int k = 0; k < masks_5_consec.length; k++) {
+		 * if ((masks_5_consec[k] & board[P_MAX]) == masks_5_consec[k])
+		 * P_MAXScore += WEIGHT_5_CONSEC;
+		 * 
+		 * if ((masks_5_consec[k] & board[P_MIN]) == masks_5_consec[k])
+		 * P_MAXScore -= WEIGHT_5_CONSEC;
+		 * }
+		 * 
+		 * for (int k = 0; k < masks_4_consec.length; k++){
+		 * if ((masks_4_consec[k] & board[P_MAX]) == masks_4_consec[k])
+		 * P_MAXScore += WEIGHT_4_CONSEC;
+		 * 
+		 * if ((masks_4_consec[k] & board[P_MIN]) == masks_4_consec[k])
+		 * P_MAXScore -= WEIGHT_4_CONSEC;
+		 * }
+		 * 
+		 * for (int k = 0; k < masks_3_consec.length; k++){
+		 * if ((masks_3_consec[k] & board[P_MAX]) == masks_3_consec[k])
+		 * P_MAXScore += WEIGHT_3_CONSEC;
+		 * 
+		 * if ((masks_3_consec[k] & board[P_MIN]) == masks_3_consec[k])
+		 * P_MAXScore -= WEIGHT_3_CONSEC;
+		 * }
+		 */
+		P_MAXScore += WEIGHT_CENTER * (getCell(P_MAX, 25) + getCell(P_MAX, 28) + getCell(P_MAX, 10) + getCell(P_MAX, 7));
+		P_MAXScore -= WEIGHT_CENTER * (getCell(P_MIN, 25) + getCell(P_MIN, 28) + getCell(P_MIN, 10) + getCell(P_MIN, 7));
 
-		//System.out.println(whiteScore);
-		return whiteScore;
+		// System.out.println(P_MAXScore);
+		return P_MAXScore;
 	}
 
-	public Board[] getChildren(int player) { // if player = 0, get's the moves that 0 can put
-		Board[] children = new Board[288]; // TODO: check that last few are nonnull when accessing children
-		int arrayPos = 0;
+	public HashSet<Board> getChildren(int player) { // if player = 0, get's the moves that 0 can put
+		// Board[] children = new Board[288]; // TODO: check that last few are nonnull when accessing children
+		HashSet<Board> children = new HashSet<Board>();
+
+		// int arrayPos = 0;
 
 		for (int k = 0; k < 36; k++) {
-			if (getCell(WHITE, k) == getCell(BLACK, k)) { // only equal when 0==0 (aka empty spot)
-				//assert getCell(WHITE, k) == 0;
+			if (getCell(P_MAX, k) == getCell(P_MIN, k)) { // only equal when 0==0 (aka empty spot)
+				// assert getCell(P_MAX, k) == 0;
 				for (int quadrant = 1; quadrant <= 4; quadrant++) {
 					// rotate clockwise
-					Board temp = new Board(this.board[WHITE], this.board[BLACK]);
+					Board temp = new Board(this.board[P_MAX], this.board[P_MIN]);
 					temp.setCell(player, k, 1);
-					//System.out.println("Set: " + k + " to " + (player==0? "white" : "black"));
+					// System.out.println("Set: " + k + " to " + (player==0? "P_MAX" : "P_MIN"));
 					temp.rotateQuadrant(quadrant, true);
 					temp.movePos = k;
 					temp.quadrant = quadrant;
 					temp.moveClockwise = true;
-					children[arrayPos] = temp;
-					//temp.print();
-					arrayPos++;
-					
+					// children[arrayPos] = temp;
+					children.add(temp);
+					// temp.print();
+					// arrayPos++;
+
 					// rotate counterclockwise
-					temp = new Board(this.board[WHITE], this.board[BLACK]);
+					temp = new Board(this.board[P_MAX], this.board[P_MIN]);
 					temp.setCell(player, k, 1);
-					//System.out.println("Set: " + k + " to " + (player==0? "white" : "black"));
+					// System.out.println("Set: " + k + " to " + (player==0? "P_MAX" : "P_MIN"));
 					temp.rotateQuadrant(quadrant, false);
 					temp.movePos = k;
 					temp.quadrant = quadrant;
 					temp.moveClockwise = false;
-					children[arrayPos] = temp;
-					//temp.print();
-					arrayPos++;
+					// children[arrayPos] = temp;
+					children.add(temp);
+					// temp.print();
+					// arrayPos++;
 				}
 			}
 		}
-
+		// System.out.println(children.size());
 		return children;
+	}
+
+	@Override
+	public int hashCode() {
+		//System.out.println((int)(board[P_MIN]+board[P_MAX]));
+		return (int) (board[P_MIN] + board[P_MAX]);
+	}
+
+	public boolean equals(Object obj) {
+		Board b = (Board)obj;
+		return (b.board[P_MIN] == board[P_MIN] && b.board[P_MAX] == board[P_MAX]);
 	}
 }
