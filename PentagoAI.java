@@ -9,21 +9,20 @@ public class PentagoAI {
 		maxDepth = maxDepth_rhs;
 	}
 
-	public ScoreObject alphaBeta(Board b, boolean isMaxPlayer) {
-		return alphaBeta(b, maxDepth, Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, isMaxPlayer);
+	public ScoreObject alphaBeta(Board b, int player) {
+		return alphaBeta(b, maxDepth, Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, player);
 	}
 
-	public ScoreObject alphaBeta(Board board, int depth, int alpha, int beta, boolean isMaxPlayer) {
-		if (depth == 0 || board.isTerminalBoard()) 
+	public ScoreObject alphaBeta(Board board, int depth, int alpha, int beta, int player) {
+		if (depth == 0 || board.isTerminalBoard())
 			return new ScoreObject(null, board.getHeuristicValue());
-		
 
 		ScoreObject returnMove;
 		ScoreObject bestMove = null;
 
-		if (isMaxPlayer) {
+		if (player == P_MAX) {
 			for (Board child : board.getChildren(P_MAX)) {
-				returnMove = alphaBeta(child, depth - 1, alpha, beta, false);
+				returnMove = alphaBeta(child, depth - 1, alpha, beta, 1 - player);
 
 				if (bestMove == null) {
 					bestMove = returnMove;
@@ -50,7 +49,7 @@ public class PentagoAI {
 			return bestMove;
 		} else {
 			for (Board child : board.getChildren(P_MIN)) {
-				returnMove = alphaBeta(child, depth - 1, alpha, beta, true);
+				returnMove = alphaBeta(child, depth - 1, alpha, beta, 1 - player);
 
 				if (bestMove == null) {
 					bestMove = returnMove;

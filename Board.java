@@ -465,10 +465,10 @@ public class Board {
 			}
 		}
 
-		if (P_MAXWin && P_MINWin)
-			return 2;
-		else if (P_MAXWin != P_MINWin)
+		if (P_MAXWin != P_MINWin)
 			return P_MAXWin ? 0 : 1;
+		else if ((P_MAXWin && P_MINWin) || (board[P_MAX] | board[P_MIN]) == 0b111111111111111111111111111111111111L)
+			return 2;
 		else
 			return -1;
 	}
@@ -514,30 +514,33 @@ public class Board {
 		HashSet<Board> children = new HashSet<Board>();
 
 		for (int k = 0; k < 36; k++) {
-			if (getCell(P_MAX, k) == getCell(P_MIN, k)) { // only equal when 0==0 (aka empty spot)
+			if (getCell(P_MAX, k) == getCell(P_MIN, k)) { // only equal when 0==0 (empty spot)
 				for (int quadrant = 1; quadrant <= 4; quadrant++) {
 
 					// rotate clockwise
 					Board temp = new Board(this.board[P_MAX], this.board[P_MIN]);
 					temp.setCell(player, k, 1);
 					temp.rotateQuadrant(quadrant, true);
-					temp.movePos = k;
-					temp.quadrant = quadrant;
-					temp.moveClockwise = true;
+					temp.setMoveData(k, quadrant, true);
 					children.add(temp);
 
 					// rotate counterclockwise
 					temp = new Board(this.board[P_MAX], this.board[P_MIN]);
 					temp.setCell(player, k, 1);
 					temp.rotateQuadrant(quadrant, false);
-					temp.movePos = k;
-					temp.quadrant = quadrant;
-					temp.moveClockwise = false;
+
+					temp.setMoveData(k, quadrant, false);
 					children.add(temp);
 				}
 			}
 		}
 		return children;
+	}
+
+	public void setMoveData(int movePos_rhs, int quadrant_rhs, boolean moveClockwise_rhs) {
+		movePos = movePos_rhs;
+		quadrant = quadrant_rhs;
+		moveClockwise = moveClockwise_rhs;
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package pentago;
 public class GameManager {
 	final String[] NAMES = { "human", "computer" };
 	final int MAX_PLAYER = 0, MIN_PLAYER = 1;
-	final int ply = 4;
+	final int ply = 3;
 
 	public static void main(String[] args) {
 		GameManager game = new GameManager();
@@ -22,14 +22,14 @@ public class GameManager {
 				doUserInput(b, MAX_PLAYER);
 				if (hasWinnerOrTie(b))
 					break;
-				doAIMove(b, AIbrain, false);
+				doAIMove(b, AIbrain, MIN_PLAYER);
 				if (hasWinnerOrTie(b))
 					break;
 			}
 		} else if (p1 == 1 && p2 == 0) { // computer white v human black
 			for (int k = 0; k < 18; k++) {
 
-				doAIMove(b, AIbrain, true);
+				doAIMove(b, AIbrain, MAX_PLAYER);
 
 				if (hasWinnerOrTie(b))
 					break;
@@ -53,14 +53,14 @@ public class GameManager {
 					break;
 			}
 		} else { // computer white v computer black
-			for (int k = 0; k <= 18; k++) {
+			for (int k = 0; k < 18; k++) {
 
-				doAIMove(b, AIbrain, true);
+				doAIMove(b, AIbrain, MAX_PLAYER);
 
 				if (hasWinnerOrTie(b))
 					break;
 
-				doAIMove(b, AIbrain, false);
+				doAIMove(b, AIbrain, MIN_PLAYER);
 
 				if (hasWinnerOrTie(b))
 					break;
@@ -68,14 +68,14 @@ public class GameManager {
 		}
 	}
 
-	public void doAIMove(Board b, PentagoAI robot, boolean isMaxPlayer) {
+	public void doAIMove(Board b, PentagoAI robot, int player) {
 		long startTime = System.nanoTime();
-		ScoreObject n = robot.alphaBeta(b, isMaxPlayer); // +-1 because -maxValue is invalid
+		ScoreObject n = robot.alphaBeta(b, player); // +-1 because -maxValue is invalid
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime) / 1000000; // divide by 1000000 to get milliseconds.
-		System.out.println("Computer (" + (isMaxPlayer ? "white"
+		System.out.println("Computer (" + (player == MAX_PLAYER ? "white"
 				: "black") + ") set pos " + n.board.movePos + " and rotates quadrant " + n.board.quadrant + (n.board.moveClockwise ? " clockwise" : " anticlockwise"));
-		b.occupyCell(isMaxPlayer ? MAX_PLAYER : MIN_PLAYER, n.board.movePos);
+		b.occupyCell(player == MAX_PLAYER ? MAX_PLAYER : MIN_PLAYER, n.board.movePos);
 		b.rotateQuadrant(n.board.quadrant, n.board.moveClockwise);
 		b.print();
 		System.out.println(duration + " ms to find move");
@@ -100,7 +100,7 @@ public class GameManager {
 			else if (b.hasWinner() == 1)
 				System.out.println("BLACK WINS!");
 			else
-				System.out.println("tie");
+				System.out.println("Tie");
 
 			return true;
 		}
