@@ -1,6 +1,5 @@
 package pentago;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Board {
@@ -10,7 +9,7 @@ public class Board {
 	public int movePos = -1, quadrant = -1;
 	public boolean moveClockwise = false;
 
-	public Board(long maxBoard, long minBoard) {
+	public Board(long maxBoard, long minBoard) { // For custom games
 		board[0] = maxBoard;
 		board[1] = minBoard;
 	}
@@ -28,10 +27,8 @@ public class Board {
 	 */
 
 	public void print(int player) {
-		// System.out.println((player == 0 ? "P_MAX" : "P_MIN"));
 
 		String temp = getBinaryStringFromLong(this.board[player]);
-		assert temp.length() == 36;
 
 		System.out.println(temp);
 		for (int k = 0; k < 36; k++) {
@@ -49,17 +46,16 @@ public class Board {
 	public void print() {
 
 		String temp = "";
+
 		for (int k = 35; k >= 0; k--) {
-			if (getCell(P_MAX, k) == getCell(P_MIN, k)) {
+			if (getCell(P_MAX, k) == getCell(P_MIN, k))
 				temp += " ";
-			} else if (getCell(P_MAX, k) == 1) {
+			else if (getCell(P_MAX, k) == 1)
 				temp += "W";
-			} else {
+			else
 				temp += "B";
-			}
 		}
-		// System.out.println("P_MAX: " + getBinaryStringFromLong(board[P_MAX]));
-		// System.out.println("P_MIN: " + getBinaryStringFromLong(board[P_MIN]));
+
 		for (int k = 0; k < 36; k++) {
 			System.out.print(temp.charAt(k));
 			if ((k + 1) % 3 == 0)
@@ -475,7 +471,6 @@ public class Board {
 			return P_MAXWin ? 0 : 1;
 		else
 			return -1;
-
 	}
 
 	private final int WEIGHT_5_CONSEC = 100_000;
@@ -508,31 +503,6 @@ public class Board {
 				P_MAXScore -= WEIGHT_3_CONSEC;
 		}
 
-		/*
-		 * for (int k = 0; k < masks_5_consec.length; k++) {
-		 * if ((masks_5_consec[k] & board[P_MAX]) == masks_5_consec[k])
-		 * P_MAXScore += WEIGHT_5_CONSEC;
-		 * 
-		 * if ((masks_5_consec[k] & board[P_MIN]) == masks_5_consec[k])
-		 * P_MAXScore -= WEIGHT_5_CONSEC;
-		 * }
-		 * 
-		 * for (int k = 0; k < masks_4_consec.length; k++){
-		 * if ((masks_4_consec[k] & board[P_MAX]) == masks_4_consec[k])
-		 * P_MAXScore += WEIGHT_4_CONSEC;
-		 * 
-		 * if ((masks_4_consec[k] & board[P_MIN]) == masks_4_consec[k])
-		 * P_MAXScore -= WEIGHT_4_CONSEC;
-		 * }
-		 * 
-		 * for (int k = 0; k < masks_3_consec.length; k++){
-		 * if ((masks_3_consec[k] & board[P_MAX]) == masks_3_consec[k])
-		 * P_MAXScore += WEIGHT_3_CONSEC;
-		 * 
-		 * if ((masks_3_consec[k] & board[P_MIN]) == masks_3_consec[k])
-		 * P_MAXScore -= WEIGHT_3_CONSEC;
-		 * }
-		 */
 		P_MAXScore += WEIGHT_CENTER * (getCell(P_MAX, 25) + getCell(P_MAX, 28) + getCell(P_MAX, 10) + getCell(P_MAX, 7));
 		P_MAXScore -= WEIGHT_CENTER * (getCell(P_MIN, 25) + getCell(P_MIN, 28) + getCell(P_MIN, 10) + getCell(P_MIN, 7));
 
@@ -541,55 +511,44 @@ public class Board {
 	}
 
 	public HashSet<Board> getChildren(int player) { // if player = 0, get's the moves that 0 can put
-		// Board[] children = new Board[288]; // TODO: check that last few are nonnull when accessing children
 		HashSet<Board> children = new HashSet<Board>();
-
-		// int arrayPos = 0;
 
 		for (int k = 0; k < 36; k++) {
 			if (getCell(P_MAX, k) == getCell(P_MIN, k)) { // only equal when 0==0 (aka empty spot)
-				// assert getCell(P_MAX, k) == 0;
 				for (int quadrant = 1; quadrant <= 4; quadrant++) {
+
 					// rotate clockwise
 					Board temp = new Board(this.board[P_MAX], this.board[P_MIN]);
 					temp.setCell(player, k, 1);
-					// System.out.println("Set: " + k + " to " + (player==0? "P_MAX" : "P_MIN"));
 					temp.rotateQuadrant(quadrant, true);
 					temp.movePos = k;
 					temp.quadrant = quadrant;
 					temp.moveClockwise = true;
-					// children[arrayPos] = temp;
 					children.add(temp);
-					// temp.print();
-					// arrayPos++;
 
 					// rotate counterclockwise
 					temp = new Board(this.board[P_MAX], this.board[P_MIN]);
 					temp.setCell(player, k, 1);
-					// System.out.println("Set: " + k + " to " + (player==0? "P_MAX" : "P_MIN"));
 					temp.rotateQuadrant(quadrant, false);
 					temp.movePos = k;
 					temp.quadrant = quadrant;
 					temp.moveClockwise = false;
-					// children[arrayPos] = temp;
 					children.add(temp);
-					// temp.print();
-					// arrayPos++;
 				}
 			}
 		}
-		// System.out.println(children.size());
 		return children;
 	}
 
 	@Override
 	public int hashCode() {
-		//System.out.println((int)(board[P_MIN]+board[P_MAX]));
-		return (int) (board[P_MIN] + board[P_MAX]);
+		long f = board[P_MAX] << 36 + board[P_MIN];
+		return 37 * 3 + (int) (f ^ (f >>> 32));
+		// https://stackoverflow.com/questions/113511/best-implementation-for-hashcode-method
 	}
 
 	public boolean equals(Object obj) {
-		Board b = (Board)obj;
+		Board b = (Board) obj;
 		return (b.board[P_MIN] == board[P_MIN] && b.board[P_MAX] == board[P_MAX]);
 	}
 }
