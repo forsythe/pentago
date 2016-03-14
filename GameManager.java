@@ -4,17 +4,22 @@ public class GameManager {
 
     final String[] NAMES = {"human", "computer"};
     final int MAX_PLAYER = 0, MIN_PLAYER = 1;
-    final int ply = 4;
+    final int PLY = 4;
+
+    PentagoAI AIbrain;
+    Board b;
+
+    public GameManager() {
+        AIbrain = new PentagoAI(PLY);
+        b = new Board();
+    }
 
     public static void main(String[] args) {
         GameManager game = new GameManager();
-        game.play(1, 0);
+        game.play(0, 1);
     }
 
     public void play(int p1, int p2) {// (0, 1) is human v computer, (1, 1) computer v computer
-        Board b = new Board();
-
-        PentagoAI AIbrain = new PentagoAI(ply);
 
         System.out.println(NAMES[p1] + " (white) v. " + NAMES[p2] + " (black)");
 
@@ -59,9 +64,9 @@ public class GameManager {
 
     public void doAIMove(Board b, PentagoAI robot, int player) {
         long startTime = System.nanoTime();
-        ScoreObject n = robot.alphaBeta(b, player); // +-1 because -maxValue is invalid
+        ScoreObject n = robot.alphaBeta(b, player);
         long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000; // divide by 1000000 to get milliseconds.
+        long duration = (endTime - startTime) / 1_000_000; // divide by 1000000 to get milliseconds.
         System.out.println("Computer (" + (player == MAX_PLAYER ? "white" : "black") + ") set pos " + n.board.movePos + " and rotates quadrant " + n.board.quadrant + (n.board.moveClockwise ? " clockwise" : " anticlockwise"));
         b.occupyCell(player == MAX_PLAYER ? MAX_PLAYER : MIN_PLAYER, n.board.movePos);
         b.rotateQuadrant(n.board.quadrant, n.board.moveClockwise);
@@ -82,13 +87,17 @@ public class GameManager {
 
     public static boolean hasWinnerOrTie(Board b) {
         if (b.hasWinner() >= 0) {
-            if (b.hasWinner() == 0)
-                System.out.println("WHITE WINS!");
-            else if (b.hasWinner() == 1)
-                System.out.println("BLACK WINS!");
-            else
-                System.out.println("Tie");
-
+            switch (b.hasWinner()) {
+                case 0:
+                    System.out.println("WHITE WINS!");
+                    break;
+                case 1:
+                    System.out.println("BLACK WINS!");
+                    break;
+                default:
+                    System.out.println("Tie");
+                    break;
+            }
             return true;
         }
         return false;
