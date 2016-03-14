@@ -2,9 +2,8 @@ package pentago;
 
 public class GameManager {
 
-    final String[] NAMES = {"human", "computer"};
-    final int MAX_PLAYER = 0, MIN_PLAYER = 1;
-    final int PLY = 4;
+    final static String HUMAN = "human", COMPUTER = "computer";
+    final static int MAX_PLAYER = 0, MIN_PLAYER = 1, PLY = 4;
 
     PentagoAI AIbrain;
     Board b;
@@ -16,14 +15,13 @@ public class GameManager {
 
     public static void main(String[] args) {
         GameManager game = new GameManager();
-        game.play(1, 1);
+        game.play(COMPUTER, COMPUTER);
     }
 
-    public void play(int p1, int p2) {// (0, 1) is human v computer, (1, 1) computer v computer
+    public void play(String p1, String p2) {
+        System.out.println(p1 + " (white) v. " + p2 + " (black)");
 
-        System.out.println(NAMES[p1] + " (white) v. " + NAMES[p2] + " (black)");
-
-        if (p1 == 0 && p2 == 1) { // human white v computer black
+        if (p1.equals(HUMAN) && p2.equals(COMPUTER)) {
             for (int k = 0; k < 18; k++) {
                 doUserInput(b, MAX_PLAYER);
                 if (hasWinnerOrTie(b))
@@ -32,7 +30,7 @@ public class GameManager {
                 if (hasWinnerOrTie(b))
                     break;
             }
-        } else if (p1 == 1 && p2 == 0) { // computer white v human black
+        } else if (p1.equals(COMPUTER) && p2.equals(HUMAN)) {
             for (int k = 0; k < 18; k++) {
                 doAIMove(b, AIbrain, MAX_PLAYER);
                 if (hasWinnerOrTie(b))
@@ -41,7 +39,7 @@ public class GameManager {
                 if (hasWinnerOrTie(b))
                     break;
             }
-        } else if (p1 == 0 && p2 == 0) { // human white v human white
+        } else if (p1.equals(HUMAN) && p2.equals(HUMAN)) {
             for (int k = 0; k < 18; k++) {
                 doUserInput(b, MAX_PLAYER);
                 if (hasWinnerOrTie(b))
@@ -50,7 +48,7 @@ public class GameManager {
                 if (hasWinnerOrTie(b))
                     break;
             }
-        } else { // computer white v computer black
+        } else if (p1.equals(COMPUTER) && p2.equals(COMPUTER)){ 
             for (int k = 0; k < 18; k++) {
                 doAIMove(b, AIbrain, MAX_PLAYER);
                 if (hasWinnerOrTie(b))
