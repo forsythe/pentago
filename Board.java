@@ -2,15 +2,31 @@ package pentago;
 
 import java.util.HashSet;
 
+/*
+	 * Board representation: [35, 34, 33, .... 2, 1, 0]
+	 * 
+	 * 35| 34| 33||| 32| 31| 30
+	 * 29| 28| 27||| 26| 25| 24
+	 * 23| 22| 21||| 20| 19| 18
+	 * ===========+============
+	 * 17| 16| 15||| 14| 13| 12
+	 * 11| 10| 9 ||| 8 | 7 | 6
+	 * 5 | 4 | 3 ||| 2 | 1 | 0
+ */
 public class Board {
 
     private static final int P_MAX = 0, P_MIN = 1;
+    public long[] board = new long[2]; // 0 for P_MAX (white), 1 for P_MIN (black)
 
-    public long[] board = new long[2]; // 0 for P_MAX, 1 for P_MIN
-    
-    //Move data
+    //Info for ScoreObjects
     public int movePos = -1, quadrant = -1;
     public boolean moveClockwise = false;
+
+    //Heuristic weights
+    private final int WEIGHT_5_CONSEC = 100_000; //Note: 5 in a row's final value will be 100_000 + 2*1000 + 3*100 due to overlap
+    private final int WEIGHT_4_CONSEC = 1000;
+    private final int WEIGHT_3_CONSEC = 100;
+    private final int WEIGHT_CENTER = 5;
 
     public Board() {
         board[0] = 0b0L;
@@ -54,17 +70,6 @@ public class Board {
         board[player] ^= (-value ^ board[player]) & (1L << pos); // Relies on twos complement for long OTHERWISE GG
     }
 
-    /*
-	 * Board representation: [35, 34, 33, .... 2, 1, 0]
-	 * 
-	 * 35| 34| 33||| 32| 31| 30
-	 * 29| 28| 27||| 26| 25| 24
-	 * 23| 22| 21||| 20| 19| 18
-	 * ===========+============
-	 * 17| 16| 15||| 14| 13| 12
-	 * 11| 10| 9 ||| 8 | 7 | 6
-	 * 5 | 4 | 3 ||| 2 | 1 | 0
-     */
     public void rotateQuadrant(int quadrant, boolean clockwise) {
         long temp;
         if (clockwise) {
@@ -189,6 +194,116 @@ public class Board {
         }
     }
 
+    public boolean isTerminalBoard() {
+        if ((board[P_MAX] | board[P_MIN]) == 0b111111111111111111111111111111111111L)
+            return true;
+
+        for (int k = 0; k < masks_5_consec.length; k++)
+            if ((masks_5_consec[k] & board[P_MAX]) == masks_5_consec[k]
+                    || (masks_5_consec[k] & board[P_MIN]) == masks_5_consec[k])
+                return true;
+
+        return false;
+    }
+
+    public int hasWinner() { // -1 no winner, 0 P_MAX, 1 P_MIN, 2 tie
+        boolean P_MAXWin = false, P_MINWin = false;
+
+        for (long mask : masks_5_consec) {
+            if ((mask & board[P_MAX]) == mask) {
+                P_MAXWin = true;
+                break;
+            }
+        }
+
+        for (long mask : masks_5_consec) {
+            if ((mask & board[P_MIN]) == mask) {
+                P_MINWin = true;
+                break;
+            }
+        }
+
+        if (P_MAXWin != P_MINWin)
+            return P_MAXWin ? 0 : 1;
+        else if ((P_MAXWin && P_MINWin) || (board[P_MAX] | board[P_MIN]) == 0b111111111111111111111111111111111111L)
+            return 2;
+        else
+            return -1;
+    }
+
+    public int getHeuristicValue() { // always in perspective of P_MAX player
+        int P_MAXScore = 0;
+
+        for (long mask : masks_5_consec) {
+            if ((mask & board[P_MAX]) == mask)
+                P_MAXScore += WEIGHT_5_CONSEC;
+
+            if ((mask & board[P_MIN]) == mask)
+                P_MAXScore -= WEIGHT_5_CONSEC;
+        }
+
+        for (long mask : masks_4_consec) {
+            if ((mask & board[P_MAX]) == mask)
+                P_MAXScore += WEIGHT_4_CONSEC;
+            if ((mask & board[P_MIN]) == mask)
+                P_MAXScore -= WEIGHT_4_CONSEC;
+        }
+
+        for (long mask : masks_3_consec) {
+            if ((mask & board[P_MAX]) == mask)
+                P_MAXScore += WEIGHT_3_CONSEC;
+            if ((mask & board[P_MIN]) == mask)
+                P_MAXScore -= WEIGHT_3_CONSEC;
+        }
+
+        P_MAXScore += WEIGHT_CENTER * (getCell(P_MAX, 25) + getCell(P_MAX, 28) + getCell(P_MAX, 10) + getCell(P_MAX, 7));
+        P_MAXScore -= WEIGHT_CENTER * (getCell(P_MIN, 25) + getCell(P_MIN, 28) + getCell(P_MIN, 10) + getCell(P_MIN, 7));
+
+        return P_MAXScore;
+    }
+
+    public HashSet<Board> getChildren(int player) { // if player = 0, get's the moves that 0 can put
+        HashSet<Board> children = new HashSet();
+
+        for (int k = 0; k < 36; k++) {
+            if (getCell(P_MAX, k) == getCell(P_MIN, k)) { // only equal when 0==0 (empty spot)
+                for (int quad = 1; quad <= 4; quad++) {
+                    Board temp = new Board(this.board[P_MAX], this.board[P_MIN]);
+                    temp.setCell(player, k, 1);
+                    temp.rotateQuadrant(quad, true); // rotate clockwise
+                    temp.setMoveData(k, quad, true);
+                    children.add(temp);
+
+                    temp = new Board(this.board[P_MAX], this.board[P_MIN]);
+                    temp.setCell(player, k, 1);
+                    temp.rotateQuadrant(quad, false); // rotate counterclockwise
+                    temp.setMoveData(k, quad, false);
+                    children.add(temp);
+                }
+            }
+        }
+        return children;
+    }
+
+    public void setMoveData(int movePos_rhs, int quadrant_rhs, boolean moveClockwise_rhs) {
+        movePos = movePos_rhs;
+        quadrant = quadrant_rhs;
+        moveClockwise = moveClockwise_rhs;
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(board[P_MAX] << 36 + board[P_MIN]);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Board b = (Board) obj;
+        return (b.board[P_MIN] == board[P_MIN] && b.board[P_MAX] == board[P_MAX]);
+    }
+    
+    // For calculating heuristic value
+    
     static long[] masks_5_consec = {
         // Horizontal masks
         0b111110_000000_000000_000000_000000_000000L,
@@ -374,117 +489,4 @@ public class Board {
         0b000100_000010_000001_000000L,
         0b000100_000010_000001L
     };
-
-    public boolean isTerminalBoard() {
-        if ((board[P_MAX] | board[P_MIN]) == 0b111111111111111111111111111111111111L)
-            return true;
-
-        for (int k = 0; k < masks_5_consec.length; k++)
-            if ((masks_5_consec[k] & board[P_MAX]) == masks_5_consec[k]
-                    || (masks_5_consec[k] & board[P_MIN]) == masks_5_consec[k])
-                return true;
-
-        return false;
-    }
-
-    public int hasWinner() { // -1 no winner, 0 P_MAX, 1 P_MIN, 2 tie
-        boolean P_MAXWin = false, P_MINWin = false;
-
-        for (long mask : masks_5_consec) {
-            if ((mask & board[P_MAX]) == mask) {
-                P_MAXWin = true;
-                break;
-            }
-        }
-
-        for (long mask : masks_5_consec) {
-            if ((mask & board[P_MIN]) == mask) {
-                P_MINWin = true;
-                break;
-            }
-        }
-
-        if (P_MAXWin != P_MINWin)
-            return P_MAXWin ? 0 : 1;
-        else if ((P_MAXWin && P_MINWin) || (board[P_MAX] | board[P_MIN]) == 0b111111111111111111111111111111111111L)
-            return 2;
-        else
-            return -1;
-    }
-
-    private final int WEIGHT_5_CONSEC = 100_000; //Note: 5 in a row's final value will be 100_000 + 2*1000 + 3*100 due to overlap
-    private final int WEIGHT_4_CONSEC = 1000;
-    private final int WEIGHT_3_CONSEC = 100;
-    private final int WEIGHT_CENTER = 5;
-
-    public int getHeuristicValue() { // always in perspective of P_MAX player
-        int P_MAXScore = 0;
-
-        for (long mask : masks_5_consec) {
-            if ((mask & board[P_MAX]) == mask)
-                P_MAXScore += WEIGHT_5_CONSEC;
-
-            if ((mask & board[P_MIN]) == mask)
-                P_MAXScore -= WEIGHT_5_CONSEC;
-        }
-
-        for (long mask : masks_4_consec) {
-            if ((mask & board[P_MAX]) == mask)
-                P_MAXScore += WEIGHT_4_CONSEC;
-            if ((mask & board[P_MIN]) == mask)
-                P_MAXScore -= WEIGHT_4_CONSEC;
-        }
-
-        for (long mask : masks_3_consec) {
-            if ((mask & board[P_MAX]) == mask)
-                P_MAXScore += WEIGHT_3_CONSEC;
-            if ((mask & board[P_MIN]) == mask)
-                P_MAXScore -= WEIGHT_3_CONSEC;
-        }
-
-        P_MAXScore += WEIGHT_CENTER * (getCell(P_MAX, 25) + getCell(P_MAX, 28) + getCell(P_MAX, 10) + getCell(P_MAX, 7));
-        P_MAXScore -= WEIGHT_CENTER * (getCell(P_MIN, 25) + getCell(P_MIN, 28) + getCell(P_MIN, 10) + getCell(P_MIN, 7));
-
-        return P_MAXScore;
-   }
-
-    public HashSet<Board> getChildren(int player) { // if player = 0, get's the moves that 0 can put
-        HashSet<Board> children = new HashSet();
-
-        for (int k = 0; k < 36; k++) {
-            if (getCell(P_MAX, k) == getCell(P_MIN, k)) { // only equal when 0==0 (empty spot)
-                for (int quad = 1; quad <= 4; quad++) {
-                    Board temp = new Board(this.board[P_MAX], this.board[P_MIN]);
-                    temp.setCell(player, k, 1);
-                    temp.rotateQuadrant(quad, true); // rotate clockwise
-                    temp.setMoveData(k, quad, true);
-                    children.add(temp);
-
-                    temp = new Board(this.board[P_MAX], this.board[P_MIN]);
-                    temp.setCell(player, k, 1);
-                    temp.rotateQuadrant(quad, false); // rotate counterclockwise
-                    temp.setMoveData(k, quad, false);
-                    children.add(temp);
-                }
-            }
-        }
-        return children;
-    }
-
-    public void setMoveData(int movePos_rhs, int quadrant_rhs, boolean moveClockwise_rhs) { 
-        movePos = movePos_rhs;
-        quadrant = quadrant_rhs;
-        moveClockwise = moveClockwise_rhs;
-    }
-
-    @Override
-    public int hashCode() {
-        return Long.hashCode(board[P_MAX] << 36 + board[P_MIN]);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        Board b = (Board) obj;
-        return (b.board[P_MIN] == board[P_MIN] && b.board[P_MAX] == board[P_MAX]);
-    }
 }
