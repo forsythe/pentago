@@ -301,9 +301,8 @@ public class Board {
         Board b = (Board) obj;
         return (b.board[P_MIN] == board[P_MIN] && b.board[P_MAX] == board[P_MAX]);
     }
-    
+
     // For calculating heuristic value
-    
     static long[] masks_5_consec = {
         // Horizontal masks
         0b111110_000000_000000_000000_000000_000000L,

@@ -2,8 +2,8 @@ package pentago;
 
 public class PentagoAI {
 
-    public static final int P_MAX = 0, P_MIN = 1;
-    public int max_depth;
+    static final int P_MAX = 0, P_MIN = 1;
+    int max_depth;
 
     public PentagoAI(int maxDepth_rhs) {
         max_depth = maxDepth_rhs;
@@ -13,16 +13,16 @@ public class PentagoAI {
         return alphaBeta(b, max_depth, Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, player);
     }
 
-    public ScoreObject alphaBeta(Board board, int depth, int alpha, int beta, int player) {
-        if (depth == 0 || board.isTerminalBoard())
-            return new ScoreObject(null, board.getHeuristicValue());
+    public ScoreObject alphaBeta(Board b, int depth, int alpha, int beta, int player) {
+        if (depth == 0 || b.isTerminalBoard())
+            return new ScoreObject(null, b.getHeuristicValue());
 
         ScoreObject returnMove;
         ScoreObject bestMove = null;
 
         if (player == P_MAX) {
 
-            for (Board child : board.getChildren(P_MAX)) {
+            for (Board child : b.getChildren(P_MAX)) {
                 returnMove = alphaBeta(child, depth - 1, alpha, beta, 1 - player);
 
                 if (bestMove == null) {
@@ -48,7 +48,7 @@ public class PentagoAI {
 
             return bestMove;
         } else {
-            for (Board child : board.getChildren(P_MIN)) {
+            for (Board child : b.getChildren(P_MIN)) {
                 returnMove = alphaBeta(child, depth - 1, alpha, beta, 1 - player);
 
                 if (bestMove == null) {

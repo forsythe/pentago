@@ -15,7 +15,7 @@ public class GameManager {
 
     public static void main(String[] args) {
         GameManager game = new GameManager();
-        game.play(COMPUTER, COMPUTER);
+        game.play(HUMAN, HUMAN);
     }
 
     public void play(String white, String black) {
@@ -65,13 +65,31 @@ public class GameManager {
     }
 
     public void doUserMove(Board b, int player) {
-        String pos = javax.swing.JOptionPane.showInputDialog("Please enter move position");
-        String quad = javax.swing.JOptionPane.showInputDialog("Please choose quadrant");
-        String clockwise = javax.swing.JOptionPane.showInputDialog("1 for clockwise, 0 for anticlockwise");
-        System.out.println("Human (" + (player == MAX_PLAYER ? "white" : "black") + ") set pos " + pos + " and rotated quadrant " + quad + (Integer.parseInt(clockwise) == 1 ? " clockwise" : " anticlockwise"));
+        String s_pos;
+        int pos;
+        do {
+            s_pos = javax.swing.JOptionPane.showInputDialog("Please enter move position [0, 35]");
+            pos = Integer.parseInt(s_pos);
+        } while (b.getCell(player, pos) != 0 || b.getCell(1 - player, pos) != 0 || pos < 0 || pos > 35);
 
-        b.occupyCell(player, Integer.parseInt(pos));
-        b.rotateQuadrant(Integer.parseInt(quad), Integer.parseInt(clockwise) == 1);
+        String s_quad;
+        int quad;
+        do {
+            s_quad = javax.swing.JOptionPane.showInputDialog("Please choose quadrant [1, 4]");
+            quad = Integer.parseInt(s_quad);
+        } while (quad < 1 || quad > 4);
+
+        String s_clockwise;
+        int clockwise;
+        do {
+            s_clockwise = javax.swing.JOptionPane.showInputDialog("0 for clockwise, 1 for anticlockwise");
+            clockwise = Integer.parseInt(s_clockwise);
+        } while (clockwise < 0 || clockwise > 1);
+
+        System.out.println("human (" + (player == MAX_PLAYER ? "white" : "black") + ") set pos " + pos + " and rotated quadrant " + quad + (clockwise == 1 ? " clockwise" : " anticlockwise"));
+
+        b.occupyCell(player, pos);
+        b.rotateQuadrant(quad, clockwise == 1);
         b.print();
     }
 
