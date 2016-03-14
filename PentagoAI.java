@@ -3,14 +3,14 @@ package pentago;
 public class PentagoAI {
 
     static final int P_MAX = 0, P_MIN = 1;
-    int maxdepth;
+    int maxDepth;
 
     public PentagoAI(int maxDepth_rhs) {
-        maxdepth = maxDepth_rhs;
+        maxDepth = maxDepth_rhs;
     }
 
     public ScoreObject alphaBeta(Board b, int player) {
-        return alphaBeta(b, maxdepth, Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, player);
+        return alphaBeta(b, maxDepth, Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, player);
     }
 
     public ScoreObject alphaBeta(Board b, int depth, int alpha, int beta, int player) {
