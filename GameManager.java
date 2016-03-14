@@ -16,7 +16,7 @@ public class GameManager {
 
     public static void main(String[] args) {
         GameManager game = new GameManager();
-        game.play(0, 1);
+        game.play(1, 1);
     }
 
     public void play(int p1, int p2) {// (0, 1) is human v computer, (1, 1) computer v computer

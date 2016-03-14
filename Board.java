@@ -7,6 +7,8 @@ public class Board {
     private static final int P_MAX = 0, P_MIN = 1;
 
     public long[] board = new long[2]; // 0 for P_MAX, 1 for P_MIN
+    
+    //Move data
     public int movePos = -1, quadrant = -1;
     public boolean moveClockwise = false;
 
@@ -20,36 +22,7 @@ public class Board {
         board[1] = minBoard;
     }
 
-    /*
-	 * Board representation: [35, 34, 33, .... 2, 1, 0]
-	 * 
-	 * 35| 34| 33||| 32| 31| 30
-	 * 29| 28| 27||| 26| 25| 24
-	 * 23| 22| 21||| 20| 19| 18
-	 * ===========+============
-	 * 17| 16| 15||| 14| 13| 12
-	 * 11| 10| 9 ||| 8 | 7 | 6
-	 * 5 | 4 | 3 ||| 2 | 1 | 0
-     */
-    public void print(int player) {
-
-        String temp = getBinaryStringFromLong(this.board[player]);
-
-        System.out.println(temp);
-        for (int k = 0; k < 36; k++) {
-            System.out.print(temp.charAt(k));
-            if ((k + 1) % 3 == 0)
-                System.out.print("|");
-            if ((k + 1) % 6 == 0)
-                System.out.println();
-            if (k == 17)
-                System.out.println("---+----");
-        }
-        System.out.println();
-    }
-
     public void print() {
-
         for (int k = 35; k >= 0; k--) {
             if (getCell(P_MAX, k) == getCell(P_MIN, k))
                 System.out.print("  ");
@@ -69,31 +42,30 @@ public class Board {
 
     }
 
-    private static String getBinaryStringFromLong(Long b) {
-        String temp = Long.toBinaryString(b);
-        return String.format("%36s", temp).replace(' ', '0');
-        // beware, leading 0s lost when Long-->str, so pad them back
-    }
-
-    // Sets the cell value to 1 for board[player]
-    public void occupyCell(int player, int pos) {
+    public void occupyCell(int player, int pos) { // Adds marble to cell for P_MIN or P_MAX
         board[player] |= (1L << pos);
-        // System.out.println("Adding marble to " + (player == 0 ? "P_MAX" : "P_MIN") + "'s position " + pos);
     }
 
-    // Check if the specified cell is taken with marble
     public long getCell(int player, int pos) {
-        return (board[player] & (1L << pos)) >> pos;
+        return (board[player] & (1L << pos)) >> pos; // Check if specified cell is occupied
     }
 
-    // Sets the cell value to something of our choice
     private void setCell(int player, int pos, long value) {
-        // System.out.println("Setting playerboard " + player + "'s bit position: " + pos + " to the value " + value);
         board[player] ^= (-value ^ board[player]) & (1L << pos); // Relies on twos complement for long OTHERWISE GG
     }
 
+    /*
+	 * Board representation: [35, 34, 33, .... 2, 1, 0]
+	 * 
+	 * 35| 34| 33||| 32| 31| 30
+	 * 29| 28| 27||| 26| 25| 24
+	 * 23| 22| 21||| 20| 19| 18
+	 * ===========+============
+	 * 17| 16| 15||| 14| 13| 12
+	 * 11| 10| 9 ||| 8 | 7 | 6
+	 * 5 | 4 | 3 ||| 2 | 1 | 0
+     */
     public void rotateQuadrant(int quadrant, boolean clockwise) {
-        // System.out.println("Rotated quadrant " + quadrant + (clockwise? " clockwise":" counterclockwise"));
         long temp;
         if (clockwise) {
             switch (quadrant) {
@@ -416,7 +388,6 @@ public class Board {
     }
 
     public int hasWinner() { // -1 no winner, 0 P_MAX, 1 P_MIN, 2 tie
-
         boolean P_MAXWin = false, P_MINWin = false;
 
         for (long mask : masks_5_consec) {
@@ -441,7 +412,7 @@ public class Board {
             return -1;
     }
 
-    private final int WEIGHT_5_CONSEC = 100_000;
+    private final int WEIGHT_5_CONSEC = 100_000; //Note: 5 in a row's final value will be 100_000 + 2*1000 + 3*100 due to overlap
     private final int WEIGHT_4_CONSEC = 1000;
     private final int WEIGHT_3_CONSEC = 100;
     private final int WEIGHT_CENTER = 5;
@@ -474,9 +445,8 @@ public class Board {
         P_MAXScore += WEIGHT_CENTER * (getCell(P_MAX, 25) + getCell(P_MAX, 28) + getCell(P_MAX, 10) + getCell(P_MAX, 7));
         P_MAXScore -= WEIGHT_CENTER * (getCell(P_MIN, 25) + getCell(P_MIN, 28) + getCell(P_MIN, 10) + getCell(P_MIN, 7));
 
-        // System.out.println(P_MAXScore);
         return P_MAXScore;
-    }
+   }
 
     public HashSet<Board> getChildren(int player) { // if player = 0, get's the moves that 0 can put
         HashSet<Board> children = new HashSet();
@@ -484,19 +454,15 @@ public class Board {
         for (int k = 0; k < 36; k++) {
             if (getCell(P_MAX, k) == getCell(P_MIN, k)) { // only equal when 0==0 (empty spot)
                 for (int quad = 1; quad <= 4; quad++) {
-
-                    // rotate clockwise
                     Board temp = new Board(this.board[P_MAX], this.board[P_MIN]);
                     temp.setCell(player, k, 1);
-                    temp.rotateQuadrant(quad, true);
+                    temp.rotateQuadrant(quad, true); // rotate clockwise
                     temp.setMoveData(k, quad, true);
                     children.add(temp);
 
-                    // rotate counterclockwise
                     temp = new Board(this.board[P_MAX], this.board[P_MIN]);
                     temp.setCell(player, k, 1);
-                    temp.rotateQuadrant(quad, false);
-
+                    temp.rotateQuadrant(quad, false); // rotate counterclockwise
                     temp.setMoveData(k, quad, false);
                     children.add(temp);
                 }
@@ -505,7 +471,7 @@ public class Board {
         return children;
     }
 
-    public void setMoveData(int movePos_rhs, int quadrant_rhs, boolean moveClockwise_rhs) {
+    public void setMoveData(int movePos_rhs, int quadrant_rhs, boolean moveClockwise_rhs) { 
         movePos = movePos_rhs;
         quadrant = quadrant_rhs;
         moveClockwise = moveClockwise_rhs;
