@@ -22,12 +22,6 @@ public class Board {
     public int movePos = -1, quadrant = -1;
     public boolean moveClockwise = false;
 
-    //Heuristic weights
-    private final int WEIGHT_5_CONSEC = 100_000; //Note: 5 in a row's final value will be 100_000 + 2*1000 + 3*100 due to overlap
-    private final int WEIGHT_4_CONSEC = 1000;
-    private final int WEIGHT_3_CONSEC = 100;
-    private final int WEIGHT_CENTER = 5;
-
     public Board() {
         board[0] = 0b0L;
         board[1] = 0b0L;
@@ -231,19 +225,27 @@ public class Board {
             return -1;
     }
 
+    //Heuristic weights
+    public static final int WEIGHT_5_CONSEC = 1_000_000; //Note: 5 in a row's final value will be 1_000_000 + 2*1000 + 3*100 due to overlap
+    private final int WEIGHT_4_CONSEC = 1000;
+    private final int WEIGHT_3_CONSEC = 100;
+    private final int WEIGHT_CENTER = 5;
+
     public int getHeuristicValue() { // always in perspective of P_MAX player
         int P_MAXScore = 0;
 
         for (long mask : masks_5_consec) {
-            if ((mask & board[P_MAX]) == mask){
-                P_MAXScore += WEIGHT_5_CONSEC;
-                break; //Once is enough; otherwise, AI will try to go fo 6 in a row
+            if ((mask & board[P_MAX]) == mask) {
+                P_MAXScore += WEIGHT_5_CONSEC; //Stop  AI from delaying wins & attempting multiple 5 in a rows (or 6 in a row)
+                break;
             }
         }
-        
-        for (long mask : masks_5_consec){
-            if ((mask & board[P_MIN]) == mask)
+
+        for (long mask : masks_5_consec) {
+            if ((mask & board[P_MIN]) == mask) {
                 P_MAXScore -= WEIGHT_5_CONSEC;
+                break;
+            }
         }
 
         for (long mask : masks_4_consec) {
@@ -266,7 +268,7 @@ public class Board {
         return P_MAXScore;
     }
 
-    public HashSet<Board> getChildren(int player) { // if player = 0, get's the moves that 0 can put
+    public HashSet<Board> getChildren(int player) {
         HashSet<Board> children = new HashSet();
 
         for (int k = 0; k < 36; k++) {
