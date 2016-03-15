@@ -29,7 +29,7 @@ Similarly, `board[1] = 0b000000_110000_001000_000000_001000_000000L` would mean 
 |_|_|_||_|_|_|
 ```
 I chose to use two binary numbers instead of a single array because this simplifies the task of checking for 3-in-a-row, 4-in-a-row, and 5-in-a-row conditions (for calculating heuristic values of the board); I can simply test `mask & board[0] == mask` to determine if the pattern has occurred, where `mask` is a `long` binary number which represents one gamestate where 5 marbles are in a row. 
-For example, one of the masks might be `0b010000_010000_010000_010000_010000_000000L`. By testing `mask & board[0] == mask`, I am checking whether or not the white player has achieved the following winning state:
+For example, one of the masks might be `0b010000_010000_010000_010000_010000_000000L`. By testing `(mask & board[0]) == mask`, I am checking whether or not the white player has achieved the following winning state:
 ```
 |_|W|_||_|_|_|
 |_|W|_||_|_|_|
