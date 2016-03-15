@@ -7,7 +7,7 @@ In each turn, a player places one marble of their color anywhere on the board, a
 
 ![pentago](https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Pentago-Game-Winning-Position.jpg/330px-Pentago-Game-Winning-Position.jpg)
 
-### How the AI player works
+### How it works
 The `Board` object stores the current state of the board inside a `long[] board` of size 2. `board[0]` holds a `long` binary number which represents the locations of the white marbles, and `board[1]` holds a `long` binary number which represents the location of the black marbles. For example, `board[0] = 0b110000_000001_000000_000000_000000_000100L` would mean that white marbles are in the following positions:
 ```
 |W|W|_||_|_|_|
@@ -39,6 +39,7 @@ For example, one of the masks might be `0b010000_010000_010000_010000_010000_000
 |_|W|_||_|_|_|
 |_|_|_||_|_|_|
 ```
+I calculate the heuristic value for the minimax algorithm by counting the number of 5-in-a-row, 4-in-a-row, 3-in-a-row, and center-of-quadrant marbles per player. The weights for each occurence are `1_000_000`, `1000`, `100`, and `5` respectively. Again, the masks make it much easier to calculate the heuristic value: simply iterating through a list of predefined masks is easier than writing a bunch of for loops to check all the possiblities.
 
 For the function `alphaBeta()`, instead of returning just the score of the `board`, I return a `ScoreObject`. This object not only holds the `score` of the board, but also the `board` itself. Further contained within the `board` object are these three variables: `int movePos`, `int quadrant`, and `boolean moveClockwise`. This data makes it easier for the `PentagoAI` to determine what move to exectute, instead of having to deduce what move was made by comparing the new `board` state with the old. 
 
