@@ -15,7 +15,7 @@ public class GameManager {
 
     public static void main(String[] args) {
         GameManager game = new GameManager();
-        game.play(HUMAN, HUMAN);
+        game.play(COMPUTER, HUMAN);
     }
 
     public void play(String white, String black) {
@@ -82,7 +82,7 @@ public class GameManager {
         String s_clockwise;
         int clockwise;
         do {
-            s_clockwise = javax.swing.JOptionPane.showInputDialog("0 for clockwise, 1 for anticlockwise");
+            s_clockwise = javax.swing.JOptionPane.showInputDialog("1 for clockwise, 0 for anticlockwise");
             clockwise = Integer.parseInt(s_clockwise);
         } while (clockwise < 0 || clockwise > 1);
 

@@ -235,9 +235,13 @@ public class Board {
         int P_MAXScore = 0;
 
         for (long mask : masks_5_consec) {
-            if ((mask & board[P_MAX]) == mask)
+            if ((mask & board[P_MAX]) == mask){
                 P_MAXScore += WEIGHT_5_CONSEC;
-
+                break; //Once is enough; otherwise, AI will try to go fo 6 in a row
+            }
+        }
+        
+        for (long mask : masks_5_consec){
             if ((mask & board[P_MIN]) == mask)
                 P_MAXScore -= WEIGHT_5_CONSEC;
         }
