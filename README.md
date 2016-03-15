@@ -39,7 +39,7 @@ For example, one of the masks might be `0b010000_010000_010000_010000_010000_000
 |_|W|_||_|_|_|
 |_|_|_||_|_|_|
 ```
-I calculate the heuristic value for the minimax algorithm by counting the number of 5-in-a-row, 4-in-a-row, 3-in-a-row, and center-of-quadrant marbles per player. The weights for each occurence are `1_000_000`, `1000`, `100`, and `5` respectively. Again, the masks make it much easier to calculate the heuristic value: simply iterating through a list of predefined masks is easier than writing a bunch of for loops to check all the possiblities.
+I calculate the heuristic value for the minimax algorithm by summing the number of times the following occur: 5-in-a-row, 4-in-a-row, 3-in-a-row, and center-of-quadrant marbles. The weights for each occurence are `1_000_000`, `1000`, `100`, and `5` respectively. Again, the masks make it much easier to calculate the heuristic value: simply iterating through a list of predefined masks is easier than writing a bunch of for loops to check all the possiblities.
 
 For the function `alphaBeta()`, instead of returning just the score of the `board`, I return a `ScoreObject`. This object not only holds the `score` of the board, but also the `board` itself. Further contained within the `board` object are these three variables: `int movePos`, `int quadrant`, and `boolean moveClockwise`. This data makes it easier for the `PentagoAI` to determine what move to exectute, instead of having to deduce what move was made by comparing the new `board` state with the old. 
 
