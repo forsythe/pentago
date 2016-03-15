@@ -226,7 +226,7 @@ public class Board {
     }
 
     //Heuristic weights
-    public static final int WEIGHT_5_CONSEC = 1_000_000; //Note: 5 in a row's final value will be 1_000_000 + 2*1000 + 3*100 due to overlap
+    private final int WEIGHT_5_CONSEC = 1_000_000; //Note: 5 in a row's final value will be 1_000_000 + 2*1000 + 3*100 due to overlap
     private final int WEIGHT_4_CONSEC = 1000;
     private final int WEIGHT_3_CONSEC = 100;
     private final int WEIGHT_CENTER = 5;
@@ -236,8 +236,8 @@ public class Board {
 
         for (long mask : masks_5_consec) {
             if ((mask & board[P_MAX]) == mask) {
-                P_MAXScore += WEIGHT_5_CONSEC; //Stop  AI from delaying wins & attempting multiple 5 in a rows (or 6 in a row)
-                break;
+                P_MAXScore += WEIGHT_5_CONSEC; 
+                break; //Stop  AI from delaying wins & attempting multiple 5 in a rows (or 6 in a row)
             }
         }
 

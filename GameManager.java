@@ -3,7 +3,8 @@ package pentago;
 public class GameManager {
 
     final static String HUMAN = "human", COMPUTER = "computer";
-    final static int MAX_PLAYER = 0, MIN_PLAYER = 1, SEARCH_DEPTH_MAX = 4;
+    final static int EASY = 1, MEDIUM = 2, HARD = 3;
+    final static int MAX_PLAYER = 0, MIN_PLAYER = 1, SEARCH_DEPTH_MAX = EASY;
 
     PentagoAI AIbrain;
     Board b;
@@ -15,7 +16,7 @@ public class GameManager {
 
     public static void main(String[] args) {
         GameManager game = new GameManager();
-        game.play(COMPUTER, HUMAN);
+        game.play(HUMAN, COMPUTER);
     }
 
     public void play(String white, String black) {
