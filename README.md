@@ -7,7 +7,7 @@ In each turn, a player places one marble of their color anywhere on the board, a
 
 ![pentago](https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Pentago-Game-Winning-Position.jpg/330px-Pentago-Game-Winning-Position.jpg)
 
-### How it works
+### How the AI works
 The `Board` object stores the current state of the board inside a `long[] board` of size 2. `board[0]` holds a `long` binary number which represents the locations of the white marbles, and `board[1]` holds a `long` binary number which represents the location of the black marbles. For example, `board[0] = 0b110000_000001_000000_000000_000000_000100L` would mean that white marbles are in the following positions:
 ```
 |W|W|_||_|_|_|
